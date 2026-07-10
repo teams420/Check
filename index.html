@@ -149,10 +149,23 @@
                 </div>
             </div>
             
-            <!-- Connection Status -->
-            <div id="connection-status" class="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm shadow-red-500/5 transition-all">
-                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline Mode
-            </div>
+            <!-- Connection Status (Instant dynamic render to prevent text glich) -->
+            <div id="connection-status" class="transition-all"></div>
+            <script>
+                (function() {
+                    try {
+                        const creds = JSON.parse(localStorage.getItem('r2_settings') || 'null');
+                        const badge = document.getElementById('connection-status');
+                        if (creds && creds.bucketName) {
+                            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected: ${creds.bucketName}`;
+                            badge.className = "flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-500 shadow-sm shadow-emerald-500/5 transition-all";
+                        } else {
+                            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline Mode`;
+                            badge.className = "flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm shadow-red-500/5 transition-all";
+                        }
+                    } catch(e) {}
+                })();
+            </script>
         </div>
         
         <!-- Navigation Tabs -->
