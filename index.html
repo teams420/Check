@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +15,18 @@
     <!-- AWS SDK v2 -->
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1600.0.min.js"></script>
     
+    <!-- Glitch Prevention Script (Executes instantly before rendering) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme_preference');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+            }
+        })();
+    </script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -40,32 +52,34 @@
         /* CSS Variables for seamless Light & Dark Theme Transition */
         :root {
             --bg-main: #03020d;
-            --bg-card: rgba(255, 255, 255, 0.01);
-            --bg-card-hover: rgba(255, 255, 255, 0.03);
+            --bg-card: rgba(255, 255, 255, 0.02);
+            --bg-card-hover: rgba(255, 255, 255, 0.04);
             --bg-nav: rgba(3, 2, 13, 0.75);
-            --border-color: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-dashed: rgba(255, 255, 255, 0.16);
             --text-title: #ffffff;
             --text-muted: #94a3b8;
             --input-bg: rgba(0, 0, 0, 0.4);
-            --neon-glow: 0 0 30px rgba(99, 102, 241, 0.08);
-            --blob-opacity: 0.05;
+            --neon-glow: 0 10px 40px rgba(99, 102, 241, 0.15), 0 0 80px rgba(99, 102, 241, 0.05);
+            --blob-opacity: 0.06;
         }
         
-        body.light-theme {
+        html.light-theme {
             --bg-main: #f8fafc;
             --bg-card: #ffffff;
             --bg-card-hover: #f1f5f9;
             --bg-nav: rgba(248, 250, 252, 0.85);
             --border-color: rgba(15, 23, 42, 0.08);
+            --border-dashed: rgba(15, 23, 42, 0.18);
             --text-title: #0f172a;
             --text-muted: #64748b;
             --input-bg: #ffffff;
-            --neon-glow: 0 10px 30px rgba(99, 102, 241, 0.04);
+            --neon-glow: 0 12px 30px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
             --blob-opacity: 0.02;
         }
 
         body {
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         /* Custom premium scrollbar */
@@ -83,14 +97,14 @@
         }
     </style>
 </head>
-<body class="bg-[var(--bg-main)] text-[var(--text-muted)] font-sans min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased">
+<body class="bg-[var(--bg-main)] text-[var(--text-muted)] font-sans min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased overflow-x-hidden">
 
-    <!-- Premium Glowing Background Elements -->
-    <div id="glow-blob-1" class="fixed top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-500/10 blur-[130px] pointer-events-none transition-opacity duration-300" style="opacity: var(--blob-opacity);"></div>
-    <div id="glow-blob-2" class="fixed bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-violet-600/10 blur-[130px] pointer-events-none transition-opacity duration-300" style="opacity: var(--blob-opacity);"></div>
+    <!-- Premium Glowing Background Elements (Conned to avoid page scroll space) -->
+    <div id="glow-blob-1" class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[130px] pointer-events-none transition-opacity duration-300 z-0" style="opacity: var(--blob-opacity);"></div>
+    <div id="glow-blob-2" class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-violet-600/10 blur-[130px] pointer-events-none transition-opacity duration-300 z-0" style="opacity: var(--blob-opacity);"></div>
 
     <!-- Centered Header & Branding (Centered Layout) -->
-    <header class="sticky top-0 z-40 border-b border-[var(--border-color)] premium-blur px-4 md:px-8 py-5 flex flex-col items-center justify-center gap-5">
+    <header class="sticky top-0 z-40 border-b border-[var(--border-color)] premium-blur px-4 md:px-8 py-5 flex flex-col items-center justify-center gap-5 w-full">
         
         <!-- Theme Toggle Button (Top Right Corner) -->
         <button id="theme-toggle" class="absolute right-4 md:right-8 top-5 p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] text-[var(--text-title)] transition-all duration-300" title="Switch Theme">
@@ -109,13 +123,13 @@
                 </div>
             </div>
             
-            <!-- Connection Status (Centered Badge) -->
+            <!-- Connection Status -->
             <div id="connection-status" class="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm shadow-red-500/5 transition-all">
                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline Mode
             </div>
         </div>
         
-        <!-- Navigation Tabs (Symmetrical and Centered) -->
+        <!-- Navigation Tabs -->
         <div class="flex items-center gap-1 bg-black/5 dark:bg-white/5 p-1 rounded-2xl border border-[var(--border-color)] w-full max-w-md">
             <button id="nav-upload" class="flex-1 px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 text-white bg-gradient-to-r from-brand-600 to-indigo-600 shadow-md shadow-brand-500/15" onclick="switchTab('upload')">
                 <i class="fa-solid fa-upload mr-2"></i>Upload
@@ -134,7 +148,7 @@
 
         <!-- 1. UPLOAD TAB -->
         <section id="tab-upload" class="space-y-6 max-w-2xl mx-auto">
-            <!-- Settings Warning (Simple English) -->
+            <!-- Settings Warning -->
             <div id="settings-warning" class="bg-amber-500/5 border border-amber-500/10 text-amber-500 p-4 rounded-2xl flex items-start gap-3.5 shadow-sm shadow-amber-500/5">
                 <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 text-amber-500"></i>
                 <div class="text-sm">
@@ -143,9 +157,9 @@
                 </div>
             </div>
 
-            <!-- Upload Area (Simple English) -->
+            <!-- Upload Area -->
             <div id="upload-box" class="opacity-45 pointer-events-none transition-all duration-300">
-                <div id="dropzone" class="border border-dashed border-[var(--border-color)] hover:border-brand-500/50 bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] rounded-3xl p-8 md:p-16 transition-all duration-300 text-center cursor-pointer group flex flex-col items-center justify-center neon-glow">
+                <div id="dropzone" class="border-2 border-dashed border-[var(--border-dashed)] hover:border-brand-500 bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] rounded-3xl p-8 md:p-16 transition-all duration-300 text-center cursor-pointer group flex flex-col items-center justify-center neon-glow">
                     <input type="file" id="file-input" class="hidden" accept="image/*">
                     <div class="bg-[var(--bg-card)] text-brand-500 w-16 h-16 rounded-2xl border border-[var(--border-color)] flex items-center justify-center mb-6 group-hover:scale-105 group-hover:bg-gradient-to-tr group-hover:from-brand-600 group-hover:to-indigo-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-brand-500/25 transition-all duration-500">
                         <i class="fa-solid fa-images text-2xl"></i>
@@ -156,7 +170,7 @@
                 </div>
             </div>
 
-            <!-- Uploading/Loading State (Simple English) -->
+            <!-- Uploading/Loading State -->
             <div id="upload-loading" class="hidden bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-10 text-center flex flex-col items-center justify-center space-y-5 neon-glow">
                 <div class="relative w-14 h-14">
                     <div class="absolute inset-0 rounded-full border-2 border-[var(--border-color)]"></div>
@@ -168,7 +182,7 @@
                 </div>
             </div>
 
-            <!-- Upload Success Result (Simple English) -->
+            <!-- Upload Success Result -->
             <div id="upload-success" class="hidden bg-emerald-500/[0.02] border border-emerald-500/10 rounded-3xl p-5 md:p-6 space-y-5 neon-glow">
                 <div class="flex items-center gap-2.5 text-emerald-500">
                     <i class="fa-solid fa-circle-check text-lg"></i>
@@ -200,7 +214,7 @@
         <section id="tab-history" class="hidden space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <!-- Vault Registry Title (Designed Ultra Premium) -->
+                    <!-- Improved Vault Registry Header -->
                     <h2 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--text-title)] to-indigo-500 bg-clip-text text-transparent">Vault Registry</h2>
                     <p class="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">Your uploaded files saved on this browser.</p>
                 </div>
@@ -264,8 +278,8 @@
 
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-[var(--border-color)] bg-black/10 dark:bg-black/40 py-5 text-center text-[10px] text-slate-500 tracking-wider uppercase relative z-10">
+    <!-- Footer (Refined to be completely flat with no grey overlay or weird shadow in light theme) -->
+    <footer class="border-t border-[var(--border-color)] bg-transparent py-5 text-center text-[10px] text-slate-500 tracking-wider uppercase relative z-10 w-full mt-auto">
         <p>&copy; 2026 Enterprise S3 Client Panel. Isolated & Encrypted inside sandbox environment.</p>
     </footer>
 
@@ -312,18 +326,16 @@
         const themeToggleBtn = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
 
-        // Apply saved theme on load
-        if (localStorage.getItem('theme_preference') === 'light') {
-            document.body.classList.add('light-theme');
+        // Apply saved theme icon on load safely
+        if (document.documentElement.classList.contains('light-theme')) {
             themeIcon.className = "fa-solid fa-sun text-sm";
         } else {
-            document.body.classList.remove('light-theme');
             themeIcon.className = "fa-solid fa-moon text-sm";
         }
 
         themeToggleBtn.addEventListener('click', () => {
-            document.body.classList.toggle('light-theme');
-            const isLight = document.body.classList.contains('light-theme');
+            document.documentElement.classList.toggle('light-theme');
+            const isLight = document.documentElement.classList.contains('light-theme');
             localStorage.setItem('theme_preference', isLight ? 'light' : 'dark');
             themeIcon.className = isLight ? "fa-solid fa-sun text-sm" : "fa-solid fa-moon text-sm";
         });
@@ -538,6 +550,7 @@
             localStorage.setItem('r2_upload_history', JSON.stringify(list));
         }
 
+        // Highly Refined History UI Rendering (Polished fonts and alignments)
         function renderHistory() {
             const historyContainer = document.getElementById('history-container');
             const historyEmpty = document.getElementById('history-empty');
@@ -552,23 +565,23 @@
 
             list.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-2xl p-4.5 flex flex-col justify-between relative overflow-hidden group hover:border-brand-500/30 transition-all duration-300 neon-glow";
+                card.className = "bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-brand-500/30 transition-all duration-300 neon-glow";
                 card.innerHTML = `
                     <div class="flex items-center gap-3.5">
-                        <div class="w-12 h-12 bg-black/10 dark:bg-black/40 border border-[var(--border-color)] rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-                            <img src="${item.url}" alt="" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e1b4b/6366f1?text=File';">
+                        <div class="w-12 h-12 bg-black/5 dark:bg-black/20 border border-[var(--border-color)] rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                            <img src="${item.url}" alt="" class="w-full h-full object-cover shadow-sm" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e1b4b/6366f1?text=File';">
                         </div>
                         <div class="flex-grow min-w-0">
-                            <h4 class="text-xs font-bold truncate text-[var(--text-title)]" title="${item.filename}">${item.filename}</h4>
-                            <span class="text-[9px] text-[var(--text-muted)] block font-semibold mt-1 tracking-wide uppercase">${item.date}</span>
+                            <h4 class="text-[13px] font-semibold tracking-tight text-[var(--text-title)] truncate" title="${item.filename}">${item.filename}</h4>
+                            <span class="text-[9px] text-[var(--text-muted)] block font-medium mt-1 tracking-wider uppercase opacity-85">${item.date}</span>
                         </div>
                     </div>
-                    <div class="flex gap-2 mt-4 pt-3 border-t border-[var(--border-color)]">
-                        <button onclick="copyDirect('${item.url}', this)" class="flex-grow bg-black/5 dark:bg-black/40 hover:bg-brand-600 text-[10px] font-bold py-2.5 rounded-xl border border-[var(--border-color)] text-brand-500 hover:text-white flex items-center justify-center gap-1.5 transition-all duration-300 hover:shadow-lg hover:shadow-brand-500/10">
+                    <div class="flex gap-2 mt-4.5 pt-3.5 border-t border-[var(--border-color)]">
+                        <button onclick="copyDirect('${item.url}', this)" class="flex-grow bg-black/5 dark:bg-black/35 hover:bg-brand-600 text-[10px] font-bold py-2.5 rounded-xl border border-[var(--border-color)] text-brand-500 hover:text-white flex items-center justify-center gap-1.5 transition-all duration-300">
                             <i class="fa-solid fa-copy"></i> Copy Link
                         </button>
-                        <button onclick="deleteFromHistory(${item.id})" class="bg-red-500/5 hover:bg-red-500/20 text-red-500 py-2.5 px-3 rounded-xl border border-red-500/10 transition-all text-xs" title="Remove from list">
-                            <i class="fa-solid fa-trash"></i>
+                        <button onclick="deleteFromHistory(${item.id})" class="bg-red-500/5 hover:bg-red-500/20 text-red-500 py-2.5 px-3.5 rounded-xl border border-red-500/10 transition-all text-xs" title="Remove from list">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
                         </button>
                     </div>
                 `;
@@ -592,6 +605,7 @@
             }
         }
 
+        // Clipboard controls
         function copyToClipboard(elementId) {
             const copyText = document.getElementById(elementId);
             copyText.select();
@@ -610,7 +624,7 @@
             
             setTimeout(() => {
                 btn.innerHTML = origHTML;
-                btn.className = "flex-grow bg-black/5 dark:bg-black/40 hover:bg-brand-600 text-[10px] font-bold py-2.5 rounded-xl border border-[var(--border-color)] text-brand-500 hover:text-white flex items-center justify-center gap-1.5 transition-all duration-300 hover:shadow-lg hover:shadow-brand-500/10";
+                btn.className = "flex-grow bg-black/5 dark:bg-black/35 hover:bg-brand-600 text-[10px] font-bold py-2.5 rounded-xl border border-[var(--border-color)] text-brand-500 hover:text-white flex items-center justify-center gap-1.5 transition-all duration-300";
             }, 2000);
         }
 
