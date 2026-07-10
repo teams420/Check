@@ -8,6 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for modern icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Ultra Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- AWS SDK v2 -->
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1600.0.min.js"></script>
     
@@ -15,6 +19,9 @@
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
                     colors: {
                         brand: {
                             50: '#f5f3ff',
@@ -22,7 +29,7 @@
                             500: '#6366f1',
                             600: '#4f46e5',
                             700: '#4338ca',
-                            950: '#0b0a1a',
+                            950: '#03020d',
                         }
                     }
                 }
@@ -30,54 +37,63 @@
         }
     </script>
     <style>
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #0b0a1a; }
+        /* Custom premium scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #03020d; }
         ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
         
         .premium-blur {
-            backdrop-filter: blur(12px);
-            background: rgba(15, 12, 38, 0.4);
+            backdrop-filter: blur(16px);
+            background: rgba(3, 2, 13, 0.7);
         }
         .neon-glow {
-            box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.08);
+        }
+        .text-glow {
+            text-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
         }
     </style>
 </head>
-<body class="bg-brand-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+<body class="bg-brand-950 text-slate-200 font-sans min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased">
 
-    <!-- Glowing Background blobs -->
-    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/10 blur-[120px] pointer-events-none"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-violet-900/10 blur-[120px] pointer-events-none"></div>
+    <!-- Premium Glowing Background Elements -->
+    <div class="fixed top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-500/5 blur-[130px] pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-violet-600/5 blur-[130px] pointer-events-none"></div>
 
     <!-- Top Navbar -->
-    <nav class="sticky top-0 z-40 border-b border-indigo-950/80 premium-blur px-4 md:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div class="flex items-center gap-3">
-            <div class="bg-gradient-to-tr from-brand-600 to-indigo-500 p-2.5 rounded-xl text-white shadow-lg shadow-brand-500/20">
-                <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+    <nav class="sticky top-0 z-40 border-b border-white/5 premium-blur px-4 md:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3.5 w-full md:w-auto justify-between md:justify-start">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-brand-600 to-indigo-500 p-2.5 rounded-xl text-white shadow-lg shadow-brand-500/10">
+                    <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-md font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">R2 Storage Panel</h1>
+                    <p class="text-[9px] text-indigo-400 font-bold tracking-widest uppercase">Enterprise Hub</p>
+                </div>
             </div>
-            <div>
-                <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-500 bg-clip-text text-transparent">R2 Storage Panel</h1>
-                <p class="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Enterprise Image Hub</p>
+            <!-- Connection Status (Mobile Indicator) -->
+            <div id="connection-status" class="md:hidden flex items-center gap-1.5 text-[9px] font-bold tracking-wider uppercase px-2.5 py-1.5 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm shadow-red-500/5">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline
             </div>
         </div>
         
-        <!-- Navigation Tabs -->
-        <div class="flex items-center gap-1 bg-slate-950/80 p-1.5 rounded-xl border border-indigo-950/80 w-full sm:w-auto">
-            <button id="nav-upload" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-brand-500 bg-indigo-950/40" onclick="switchTab('upload')">
+        <!-- Navigation Tabs (Highly Mobile Friendly Segmented Control) -->
+        <div class="flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/5 w-full md:w-auto">
+            <button id="nav-upload" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 text-white bg-gradient-to-r from-brand-600 to-indigo-600 shadow-md shadow-brand-500/15" onclick="switchTab('upload')">
                 <i class="fa-solid fa-upload mr-2"></i>Upload
             </button>
-            <button id="nav-history" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all duration-200" onclick="switchTab('history')">
+            <button id="nav-history" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all duration-300" onclick="switchTab('history')">
                 <i class="fa-solid fa-clock-rotate-left mr-2"></i>History
             </button>
-            <button id="nav-settings" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all duration-200" onclick="switchTab('settings')">
+            <button id="nav-settings" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all duration-300" onclick="switchTab('settings')">
                 <i class="fa-solid fa-gear mr-2"></i>Settings
             </button>
         </div>
         
-        <!-- Connection Status Indicator -->
-        <div id="connection-status" class="flex items-center gap-2 text-[11px] font-semibold px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 text-red-400">
+        <!-- Connection Status (Desktop Indicator) -->
+        <div id="connection-status-desktop" class="hidden md:flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2.5 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm shadow-red-500/5">
             <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline Mode
         </div>
     </nav>
@@ -88,61 +104,61 @@
         <!-- 1. UPLOAD TAB -->
         <section id="tab-upload" class="space-y-6 max-w-2xl mx-auto">
             <!-- Settings Warning -->
-            <div id="settings-warning" class="bg-amber-500/5 border border-amber-500/20 text-amber-300 p-4 rounded-2xl flex items-start gap-3">
-                <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5"></i>
+            <div id="settings-warning" class="bg-amber-500/5 border border-amber-500/10 text-amber-300 p-4 rounded-2xl flex items-start gap-3.5 shadow-sm shadow-amber-500/5">
+                <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 text-amber-400"></i>
                 <div class="text-sm">
-                    <h3 class="font-semibold text-amber-200">Integration Key Required</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Please populate your Cloudflare R2 Credentials in the <span class="underline cursor-pointer font-bold text-amber-400" onclick="switchTab('settings')">Settings</span> tab to enable secure transfers.</p>
+                    <h3 class="font-bold text-amber-200 tracking-tight">Integration Key Required</h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">Please populate your Cloudflare R2 Credentials in the <span class="underline cursor-pointer font-bold text-amber-400" onclick="switchTab('settings')">Settings</span> tab to enable secure transfers.</p>
                 </div>
             </div>
 
             <!-- Upload Area -->
-            <div id="upload-box" class="opacity-40 pointer-events-none transition-all duration-300">
-                <div id="dropzone" class="border border-dashed border-indigo-950 hover:border-brand-500 bg-indigo-950/10 hover:bg-indigo-950/20 rounded-3xl p-10 md:p-14 transition-all duration-300 text-center cursor-pointer group flex flex-col items-center justify-center neon-glow">
+            <div id="upload-box" class="opacity-45 pointer-events-none transition-all duration-300">
+                <div id="dropzone" class="border border-dashed border-white/10 hover:border-brand-500/50 bg-white/[0.02] hover:bg-white/[0.04] rounded-3xl p-8 md:p-16 transition-all duration-300 text-center cursor-pointer group flex flex-col items-center justify-center neon-glow">
                     <input type="file" id="file-input" class="hidden" accept="image/*">
-                    <div class="bg-indigo-950/40 text-brand-500 w-16 h-16 rounded-2xl border border-indigo-900/30 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-brand-500/30 transition-all duration-300">
+                    <div class="bg-white/[0.03] text-brand-500 w-16 h-16 rounded-2xl border border-white/5 flex items-center justify-center mb-6 group-hover:scale-105 group-hover:bg-gradient-to-tr group-hover:from-brand-600 group-hover:to-indigo-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-brand-500/25 transition-all duration-500">
                         <i class="fa-solid fa-images text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold mb-1.5 text-slate-100">Transmit New Media</h3>
-                    <p class="text-xs text-slate-400 mb-6">Drag & drop files here, or click to explore local folders</p>
-                    <span class="text-xs bg-slate-900/60 text-slate-400 px-4 py-2 rounded-xl border border-indigo-950/50">Supports PNG, JPG, GIF, WEBP</span>
+                    <h3 class="text-lg font-bold mb-2 text-white tracking-tight">Transmit New Media</h3>
+                    <p class="text-xs text-slate-400 mb-6 max-w-xs mx-auto leading-relaxed">Drag & drop files here, or click to explore local folders</p>
+                    <span class="text-[10px] font-bold tracking-wider uppercase bg-white/5 text-indigo-300 px-4 py-2 rounded-xl border border-white/5">Supports PNG, JPG, GIF, WEBP</span>
                 </div>
             </div>
 
             <!-- Uploading/Loading State -->
-            <div id="upload-loading" class="hidden bg-slate-950/40 border border-indigo-950/50 rounded-3xl p-10 text-center flex flex-col items-center justify-center space-y-4 neon-glow">
+            <div id="upload-loading" class="hidden bg-white/[0.02] border border-white/5 rounded-3xl p-10 text-center flex flex-col items-center justify-center space-y-5 neon-glow">
                 <div class="relative w-14 h-14">
-                    <div class="absolute inset-0 rounded-full border-2 border-indigo-950"></div>
+                    <div class="absolute inset-0 rounded-full border-2 border-white/5"></div>
                     <div class="absolute inset-0 rounded-full border-2 border-brand-500 border-t-transparent animate-spin"></div>
                 </div>
                 <div>
-                    <h4 class="font-bold text-brand-500">Broadcasting to Cloud</h4>
-                    <p class="text-[11px] text-slate-400 mt-1" id="upload-filename">Injecting packet payloads</p>
+                    <h4 class="font-bold text-indigo-400 tracking-tight text-md">Broadcasting to Cloud</h4>
+                    <p class="text-xs text-slate-400 mt-1.5" id="upload-filename">Injecting packet payloads</p>
                 </div>
             </div>
 
             <!-- Upload Success Result -->
-            <div id="upload-success" class="hidden bg-emerald-500/5 border border-emerald-500/20 rounded-3xl p-5 md:p-6 space-y-5 neon-glow">
-                <div class="flex items-center gap-3 text-emerald-400">
-                    <i class="fa-solid fa-circle-check text-xl"></i>
-                    <h3 class="font-bold text-sm text-emerald-300">Transaction Complete</h3>
+            <div id="upload-success" class="hidden bg-emerald-500/[0.02] border border-emerald-500/10 rounded-3xl p-5 md:p-6 space-y-5 neon-glow">
+                <div class="flex items-center gap-2.5 text-emerald-400">
+                    <i class="fa-solid fa-circle-check text-lg"></i>
+                    <h3 class="font-bold text-xs tracking-wider uppercase text-emerald-300">Transaction Complete</h3>
                 </div>
                 <div class="flex flex-col md:flex-row gap-5">
-                    <div class="md:w-1/3 bg-slate-950/80 p-2 rounded-2xl border border-indigo-950 flex items-center justify-center max-h-40 overflow-hidden">
-                        <img id="result-preview" src="" alt="Preview" class="max-w-full max-h-36 object-contain rounded-xl">
+                    <div class="md:w-1/3 bg-slate-950/80 p-2.5 rounded-2xl border border-white/5 flex items-center justify-center max-h-48 overflow-hidden shadow-inner">
+                        <img id="result-preview" src="" alt="Preview" class="max-w-full max-h-40 object-contain rounded-xl">
                     </div>
                     <div class="md:w-2/3 flex flex-col justify-center space-y-4">
                         <div>
-                            <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1.5">Secure CDN URL</label>
+                            <label class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest block mb-2">Secure CDN URL</label>
                             <div class="flex gap-2">
-                                <input type="text" id="result-link" readonly class="bg-slate-950 border border-indigo-950/60 rounded-xl px-4 py-2.5 text-xs w-full text-slate-300 focus:outline-none focus:border-brand-500">
-                                <button onclick="copyToClipboard('result-link')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 whitespace-nowrap shadow-md shadow-brand-500/10">
+                                <input type="text" id="result-link" readonly class="bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs w-full text-slate-300 focus:outline-none focus:border-brand-500/50 transition-colors">
+                                <button onclick="copyToClipboard('result-link')" class="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap shadow-md shadow-brand-500/10">
                                     <i class="fa-solid fa-copy"></i> Copy
                                 </button>
                             </div>
                         </div>
-                        <button onclick="resetUploader()" class="text-[11px] font-bold text-slate-400 hover:text-slate-200 self-start transition-colors">
-                            <i class="fa-solid fa-arrow-left mr-1.5"></i> Transmit Another File
+                        <button onclick="resetUploader()" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 self-start transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-left"></i> Transmit Another File
                         </button>
                     </div>
                 </div>
@@ -151,63 +167,63 @@
 
         <!-- 2. HISTORY TAB -->
         <section id="tab-history" class="hidden space-y-6">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-extrabold tracking-tight">Vault Registry</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Locally stored logs inside this browser footprint</p>
+                    <h2 class="text-xl font-extrabold tracking-tight text-white">Vault Registry</h2>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">Locally stored logs inside this browser footprint</p>
                 </div>
-                <button onclick="clearHistory()" class="text-xs bg-red-500/5 border border-red-500/20 text-red-400 px-4 py-2 rounded-xl hover:bg-red-500/10 transition-all font-semibold">
+                <button onclick="clearHistory()" class="text-xs bg-red-500/[0.03] border border-red-500/10 text-red-400 px-4 py-2.5 rounded-xl hover:bg-red-500/10 transition-all font-bold tracking-tight self-start sm:self-auto">
                     <i class="fa-solid fa-trash-can mr-2"></i>Purge Registry
                 </button>
             </div>
             
-            <div id="history-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+            <div id="history-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-4">
                 <!-- History Items Dynamic Injection -->
             </div>
             
             <!-- Empty History State -->
-            <div id="history-empty" class="text-center py-16 bg-indigo-950/5 border border-indigo-950/40 rounded-3xl">
-                <i class="fa-regular fa-folder-open text-slate-600 text-3xl mb-3"></i>
-                <p class="text-slate-400 text-xs font-semibold">No media records registered</p>
+            <div id="history-empty" class="text-center py-20 bg-white/[0.01] border border-white/5 rounded-3xl">
+                <i class="fa-regular fa-folder-open text-slate-600 text-3xl mb-4"></i>
+                <p class="text-slate-400 text-xs font-bold tracking-wide">No media records registered</p>
             </div>
         </section>
 
         <!-- 3. SETTINGS TAB -->
-        <section id="tab-settings" class="hidden max-w-xl mx-auto bg-slate-950/50 border border-indigo-950 rounded-3xl p-6 md:p-8 space-y-6 neon-glow">
+        <section id="tab-settings" class="hidden max-w-xl mx-auto bg-white/[0.01] border border-white/5 rounded-3xl p-6 md:p-8 space-y-6 neon-glow">
             <div>
-                <h2 class="text-xl font-extrabold tracking-tight">Gateway Config</h2>
-                <p class="text-xs text-slate-400 mt-1">S3 API keys are isolated on your client storage device for maximum confidentiality.</p>
+                <h2 class="text-xl font-extrabold tracking-tight text-white">Gateway Config</h2>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">S3 API keys are isolated on your client storage device for maximum confidentiality.</p>
             </div>
 
             <form id="settings-form" class="space-y-5">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Cloudflare Account ID</label>
-                    <input type="text" id="r2-account-id" required placeholder="Paste Cloudflare Account ID" class="w-full bg-slate-950 border border-indigo-950 focus:border-brand-500 rounded-xl px-4 py-3 text-xs text-slate-200 outline-none transition-all duration-200">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-2">Cloudflare Account ID</label>
+                    <input type="text" id="r2-account-id" required placeholder="Paste Cloudflare Account ID" class="w-full bg-black/40 border border-white/5 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-3.5 text-xs text-slate-200 outline-none transition-all duration-300">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">R2 Access Key ID</label>
-                        <input type="text" id="r2-access-key" required placeholder="Enter Access Key ID" class="w-full bg-slate-950 border border-indigo-950 focus:border-brand-500 rounded-xl px-4 py-3 text-xs text-slate-200 outline-none transition-all duration-200">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-2">R2 Access Key ID</label>
+                        <input type="text" id="r2-access-key" required placeholder="Enter Access Key ID" class="w-full bg-black/40 border border-white/5 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-3.5 text-xs text-slate-200 outline-none transition-all duration-300">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">R2 Secret Access Key</label>
-                        <input type="password" id="r2-secret-key" required placeholder="Enter Secret Access Key" class="w-full bg-slate-950 border border-indigo-950 focus:border-brand-500 rounded-xl px-4 py-3 text-xs text-slate-200 outline-none transition-all duration-200">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-2">R2 Secret Access Key</label>
+                        <input type="password" id="r2-secret-key" required placeholder="Enter Secret Access Key" class="w-full bg-black/40 border border-white/5 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-3.5 text-xs text-slate-200 outline-none transition-all duration-300">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">R2 Bucket Name</label>
-                    <input type="text" id="r2-bucket-name" required placeholder="Enter Bucket Name" class="w-full bg-slate-950 border border-indigo-950 focus:border-brand-500 rounded-xl px-4 py-3 text-xs text-slate-200 outline-none transition-all duration-200">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-2">R2 Bucket Name</label>
+                    <input type="text" id="r2-bucket-name" required placeholder="Enter Bucket Name" class="w-full bg-black/40 border border-white/5 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-3.5 text-xs text-slate-200 outline-none transition-all duration-300">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Public CDN Domain Prefix</label>
-                    <input type="url" id="r2-public-url" required placeholder="https://pub-xxxxxx.r2.dev or custom domain" class="w-full bg-slate-950 border border-indigo-950 focus:border-brand-500 rounded-xl px-4 py-3 text-xs text-slate-200 outline-none transition-all duration-200">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-2">Public CDN Domain Prefix</label>
+                    <input type="url" id="r2-public-url" required placeholder="https://pub-xxxxxx.r2.dev or custom domain" class="w-full bg-black/40 border border-white/5 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-3.5 text-xs text-slate-200 outline-none transition-all duration-300">
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-3 pt-3">
-                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 text-xs flex items-center justify-center gap-2 shadow-md shadow-brand-500/10">
+                <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button type="submit" class="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-300 text-xs flex items-center justify-center gap-2 shadow-md shadow-brand-500/10">
                         <i class="fa-solid fa-floppy-disk"></i> Link Gateway
                     </button>
-                    <button type="button" onclick="clearSettings()" class="bg-indigo-950/20 hover:bg-indigo-950/40 text-slate-300 font-bold px-6 py-3 rounded-xl border border-indigo-950 transition-colors text-xs">
+                    <button type="button" onclick="clearSettings()" class="bg-white/5 hover:bg-white/10 text-slate-300 font-bold px-6 py-3.5 rounded-xl border border-white/5 transition-colors text-xs">
                         Wipe Keys
                     </button>
                 </div>
@@ -217,32 +233,30 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-indigo-950/50 bg-slate-950/80 py-4 text-center text-[10px] text-slate-500 relative z-10">
+    <footer class="border-t border-white/5 bg-black/40 py-5 text-center text-[10px] text-slate-500 tracking-wider uppercase relative z-10">
         <p>&copy; 2026 Enterprise S3 Client Panel. Isolated & Encrypted inside sandbox environment.</p>
     </footer>
 
     <!-- Premium Toast Notification Logic -->
     <script>
         function showToast(message, type = 'success') {
-            // Remove existing toasts first to prevent overlaps
             const existingToasts = document.querySelectorAll('.toast-popup');
             existingToasts.forEach(t => t.remove());
 
             const toast = document.createElement('div');
-            toast.className = `toast-popup fixed bottom-5 right-5 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl border backdrop-blur transition-all transform translate-y-10 opacity-0 duration-300 shadow-xl cursor-pointer`;
+            toast.className = `toast-popup fixed bottom-5 right-5 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl border backdrop-blur-xl transition-all transform translate-y-10 opacity-0 duration-300 shadow-2xl cursor-pointer`;
             
             if (type === 'success') {
-                toast.className += ' bg-emerald-500/10 border-emerald-500/30 text-emerald-400';
-                toast.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i> <div class="text-xs font-bold leading-normal">${message}</div>`;
+                toast.className += ' bg-emerald-500/10 border-emerald-500/20 text-emerald-400';
+                toast.innerHTML = `<i class="fa-solid fa-circle-check text-md"></i> <div class="text-xs font-bold leading-normal tracking-wide">${message}</div>`;
             } else if (type === 'error') {
-                toast.className += ' bg-red-500/10 border-red-500/30 text-red-400';
-                toast.innerHTML = `<i class="fa-solid fa-circle-exclamation text-lg"></i> <div class="text-xs font-bold leading-normal">${message}</div>`;
+                toast.className += ' bg-red-500/10 border-red-500/20 text-red-400';
+                toast.innerHTML = `<i class="fa-solid fa-circle-exclamation text-md"></i> <div class="text-xs font-bold leading-normal tracking-wide">${message}</div>`;
             } else {
-                toast.className += ' bg-slate-950/95 border-indigo-950 text-slate-300';
-                toast.innerHTML = `<i class="fa-solid fa-info text-lg text-brand-500"></i> <div class="text-xs font-bold leading-normal">${message}</div>`;
+                toast.className += ' bg-black/90 border-white/10 text-slate-300';
+                toast.innerHTML = `<i class="fa-solid fa-info text-md text-brand-500"></i> <div class="text-xs font-bold leading-normal tracking-wide">${message}</div>`;
             }
             
-            // Close on click
             toast.onclick = () => {
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
@@ -250,12 +264,10 @@
 
             document.body.appendChild(toast);
             
-            // Animate in
             setTimeout(() => {
                 toast.classList.remove('translate-y-10', 'opacity-0');
             }, 50);
             
-            // Auto remove
             setTimeout(() => {
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
@@ -274,6 +286,7 @@
         
         const settingsForm = document.getElementById('settings-form');
         const connectionStatus = document.getElementById('connection-status');
+        const connectionStatusDesktop = document.getElementById('connection-status-desktop');
         const settingsWarning = document.getElementById('settings-warning');
         const uploadBox = document.getElementById('upload-box');
         const dropzone = document.getElementById('dropzone');
@@ -285,26 +298,29 @@
         const resultLink = document.getElementById('result-link');
         const uploadFilename = document.getElementById('upload-filename');
 
-        // Tab Switching Engine
+        // Tab Switching Engine (Modified to adapt dynamically with premium active styles)
         function switchTab(tab) {
             document.getElementById('tab-upload').classList.add('hidden');
             document.getElementById('tab-history').classList.add('hidden');
             document.getElementById('tab-settings').classList.add('hidden');
 
-            document.getElementById('nav-upload').className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all duration-200";
-            document.getElementById('nav-history').className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all duration-200";
-            document.getElementById('nav-settings').className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all duration-200";
+            const inactiveStyle = "flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all duration-300";
+            const activeStyle = "flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 text-white bg-gradient-to-r from-brand-600 to-indigo-600 shadow-md shadow-brand-500/15";
+
+            document.getElementById('nav-upload').className = inactiveStyle;
+            document.getElementById('nav-history').className = inactiveStyle;
+            document.getElementById('nav-settings').className = inactiveStyle;
 
             if (tab === 'upload') {
                 document.getElementById('tab-upload').classList.remove('hidden');
-                document.getElementById('nav-upload').className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-brand-500 bg-indigo-950/40";
+                document.getElementById('nav-upload').className = activeStyle;
             } else if (tab === 'history') {
                 document.getElementById('tab-history').classList.remove('hidden');
-                document.getElementById('nav-history').className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-brand-500 bg-indigo-950/40";
+                document.getElementById('nav-history').className = activeStyle;
                 renderHistory();
             } else if (tab === 'settings') {
                 document.getElementById('tab-settings').classList.remove('hidden');
-                document.getElementById('nav-settings').className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-brand-500 bg-indigo-950/40";
+                document.getElementById('nav-settings').className = activeStyle;
             }
         }
 
@@ -317,10 +333,19 @@
         function checkStatus() {
             const creds = getCredentials();
             if (creds) {
-                connectionStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected: ${creds.bucketName}`;
-                connectionStatus.className = "flex items-center gap-2 text-[11px] font-semibold px-4 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400";
+                const onlineText = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected: ${creds.bucketName}`;
+                const onlineClass = "flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 shadow-sm shadow-emerald-500/5";
+                
+                // Set Desktop Status
+                connectionStatusDesktop.innerHTML = onlineText;
+                connectionStatusDesktop.className = onlineClass;
+                
+                // Set Mobile Status
+                connectionStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected`;
+                connectionStatus.className = "md:hidden flex items-center gap-1.5 text-[9px] font-bold tracking-wider uppercase px-2.5 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 shadow-sm shadow-emerald-500/5";
+
                 settingsWarning.classList.add('hidden');
-                uploadBox.classList.remove('opacity-40', 'pointer-events-none');
+                uploadBox.classList.remove('opacity-45', 'pointer-events-none');
                 
                 // Populate fields in settings tab
                 r2AccountId.value = creds.accountId || '';
@@ -329,10 +354,19 @@
                 r2BucketName.value = creds.bucketName || '';
                 r2PublicUrl.value = creds.publicUrl || '';
             } else {
-                connectionStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline Mode`;
-                connectionStatus.className = "flex items-center gap-2 text-[11px] font-semibold px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 text-red-400";
+                const offlineText = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline Mode`;
+                const offlineClass = "flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2.5 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm shadow-red-500/5";
+                
+                // Set Desktop Status
+                connectionStatusDesktop.innerHTML = offlineText;
+                connectionStatusDesktop.className = offlineClass;
+
+                // Set Mobile Status
+                connectionStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline`;
+                connectionStatus.className = "md:hidden flex items-center gap-1.5 text-[9px] font-bold tracking-wider uppercase px-2.5 py-1.5 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm shadow-red-500/5";
+
                 settingsWarning.classList.remove('hidden');
-                uploadBox.classList.add('opacity-40', 'pointer-events-none');
+                uploadBox.classList.add('opacity-45', 'pointer-events-none');
             }
         }
 
@@ -375,16 +409,16 @@
         // Drag over animations
         dropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropzone.classList.add('border-brand-500', 'bg-indigo-950/20');
+            dropzone.classList.add('border-brand-500/50', 'bg-white/[0.04]');
         });
         
         dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('border-brand-500', 'bg-indigo-950/20');
+            dropzone.classList.remove('border-brand-500/50', 'bg-white/[0.04]');
         });
 
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropzone.classList.remove('border-brand-500', 'bg-indigo-950/20');
+            dropzone.classList.remove('border-brand-500/50', 'bg-white/[0.04]');
             const files = e.dataTransfer.files;
             if (files.length > 0) uploadFile(files[0]);
         });
@@ -481,22 +515,22 @@
 
             list.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "bg-slate-900/50 border border-indigo-950 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-brand-500/40 transition-all duration-300 neon-glow";
+                card.className = "bg-white/[0.01] border border-white/5 rounded-2xl p-4.5 flex flex-col justify-between relative overflow-hidden group hover:border-brand-500/30 transition-all duration-300 neon-glow";
                 card.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-slate-950/80 border border-indigo-950 rounded-xl flex items-center justify-center overflow-hidden">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-12 h-12 bg-black/40 border border-white/5 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
                             <img src="${item.url}" alt="" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e1b4b/6366f1?text=File';">
                         </div>
                         <div class="flex-grow min-w-0">
                             <h4 class="text-xs font-bold truncate text-slate-200" title="${item.filename}">${item.filename}</h4>
-                            <span class="text-[9px] text-slate-500 block font-semibold mt-0.5">${item.date}</span>
+                            <span class="text-[9px] text-slate-500 block font-semibold mt-1 tracking-wide uppercase">${item.date}</span>
                         </div>
                     </div>
-                    <div class="flex gap-2 mt-3 pt-2 border-t border-indigo-950/50">
-                        <button onclick="copyDirect('${item.url}', this)" class="flex-grow bg-slate-950/80 hover:bg-brand-600 text-[10px] font-bold py-2 rounded-xl border border-indigo-950 text-brand-500 hover:text-white flex items-center justify-center gap-1.5 transition-all duration-200">
+                    <div class="flex gap-2 mt-4 pt-3 border-t border-white/5">
+                        <button onclick="copyDirect('${item.url}', this)" class="flex-grow bg-black/40 hover:bg-brand-600 text-[10px] font-bold py-2.5 rounded-xl border border-white/5 text-brand-400 hover:text-white flex items-center justify-center gap-1.5 transition-all duration-300 hover:shadow-lg hover:shadow-brand-500/10">
                             <i class="fa-solid fa-copy"></i> Copy Link
                         </button>
-                        <button onclick="deleteFromHistory(${item.id})" class="bg-red-500/5 hover:bg-red-500/20 text-red-400 py-2 px-3 rounded-xl border border-red-500/10 transition-colors text-xs" title="Remove from list">
+                        <button onclick="deleteFromHistory(${item.id})" class="bg-red-500/5 hover:bg-red-500/20 text-red-400 py-2.5 px-3 rounded-xl border border-red-500/10 transition-all text-xs" title="Remove from list">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -535,11 +569,11 @@
             
             const origHTML = btn.innerHTML;
             btn.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
-            btn.className = "flex-grow bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all duration-200";
+            btn.className = "flex-grow bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all duration-300 shadow-sm shadow-emerald-500/5";
             
             setTimeout(() => {
                 btn.innerHTML = origHTML;
-                btn.className = "flex-grow bg-slate-950/80 hover:bg-brand-600 text-[10px] font-bold py-2 rounded-xl border border-indigo-950 text-brand-500 hover:text-white flex items-center justify-center gap-1.5 transition-all duration-200";
+                btn.className = "flex-grow bg-black/40 hover:bg-brand-600 text-[10px] font-bold py-2.5 rounded-xl border border-white/5 text-brand-400 hover:text-white flex items-center justify-center gap-1.5 transition-all duration-300 hover:shadow-lg hover:shadow-brand-500/10";
             }, 2000);
         }
 
