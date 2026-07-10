@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for beautiful icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AWS SDK v2 (extremely stable for browser environments) -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1600.0.min.js"></script>
     <style>
         /* Custom scrollbar for history panel */
         ::-webkit-scrollbar { width: 6px; }
@@ -188,10 +190,8 @@
         <p>&copy; 2026 Client-Side R2 Panel. Running Securely in Browser.</p>
     </footer>
 
-    <!-- Main Logic using AWS S3 SDK (via ESM) -->
-    <script type="module">
-        import { S3Client, PutObjectCommand } from "https://esm.sh/@aws-sdk/client-s3";
-
+    <!-- Main Logic using AWS S3 SDK v2 -->
+    <script>
         // DOM elements
         const r2AccountId = document.getElementById('r2-account-id');
         const r2AccessKey = document.getElementById('r2-access-key');
@@ -213,7 +213,7 @@
         const uploadFilename = document.getElementById('upload-filename');
 
         // Global Navigation Controls
-        window.switchTab = function(tab) {
+        function switchTab(tab) {
             document.getElementById('tab-upload').classList.add('hidden');
             document.getElementById('tab-history').classList.add('hidden');
             document.getElementById('tab-settings').classList.add('hidden');
@@ -233,7 +233,7 @@
                 document.getElementById('tab-settings').classList.remove('hidden');
                 document.getElementById('nav-settings').className = "px-4 py-2 rounded-md text-sm font-medium transition-all text-indigo-400 bg-slate-900";
             }
-        };
+        }
 
         // Load configuration on startup
         function getCredentials() {
@@ -280,7 +280,7 @@
         });
 
         // Clear Settings Handler
-        window.clearSettings = function() {
+        function clearSettings() {
             if (confirm("Are you sure you want to remove your credentials?")) {
                 localStorage.removeItem('r2_settings');
                 r2AccountId.value = '';
@@ -291,7 +291,7 @@
                 checkStatus();
                 alert("Credentials cleared!");
             }
-        };
+        }
 
         // File Selection Handlers
         dropzone.addEventListener('click', () => fileInput.click());
@@ -323,8 +323,8 @@
             }
         }
 
-        // Upload Process logic
-        async function uploadFile(file) {
+        // Upload Process logic using AWS SDK v2
+        function uploadFile(file) {
             const creds = getCredentials();
             if (!creds) {
                 alert("Configuration missing. Please go to settings.");
@@ -336,61 +336,61 @@
             uploadLoading.classList.remove('hidden');
             uploadFilename.textContent = `Uploading "${file.name}" (${(file.size / 1024).toFixed(1)} KB)...`;
 
-            const s3Client = new S3Client({
-                region: "auto",
+            // Configure AWS S3 Client
+            const s3 = new AWS.S3({
+                accessKeyId: creds.accessKeyId,
+                secretAccessKey: creds.secretAccessKey,
                 endpoint: `https://${creds.accountId}.r2.cloudflarestorage.com`,
-                credentials: {
-                    accessKeyId: creds.accessKeyId,
-                    secretAccessKey: creds.secretAccessKey,
-                },
+                signatureVersion: 'v4',
+                region: 'auto'
             });
 
             // Clean special chars in filename and prefix with timestamp for uniqueness
             const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
             const uniqueKey = `${Date.now()}-${cleanName}`;
 
-            try {
-                const command = new PutObjectCommand({
-                    Bucket: creds.bucketName,
-                    Key: uniqueKey,
-                    Body: file,
-                    ContentType: file.type || 'application/octet-stream'
-                });
+            const params = {
+                Bucket: creds.bucketName,
+                Key: uniqueKey,
+                Body: file,
+                ContentType: file.type || 'application/octet-stream'
+            };
 
-                await s3Client.send(command);
+            // Perform direct upload
+            s3.putObject(params, function(err, data) {
+                if (err) {
+                    console.error("Upload error details:", err);
+                    alert(`Upload failed: ${err.message}\n\nPlease check your Credentials or ensure CORS settings allow 'PUT' on Cloudflare R2.`);
+                    resetUploader();
+                } else {
+                    // Build output URL
+                    const finalLink = `${creds.publicUrl}/${uniqueKey}`;
 
-                // Build output URL
-                const finalLink = `${creds.publicUrl}/${uniqueKey}`;
+                    // Update Success UI
+                    uploadLoading.classList.add('hidden');
+                    uploadSuccess.classList.remove('hidden');
+                    
+                    resultPreview.src = URL.createObjectURL(file);
+                    resultLink.value = finalLink;
 
-                // Update Success UI
-                uploadLoading.classList.add('hidden');
-                uploadSuccess.classList.remove('hidden');
-                
-                resultPreview.src = URL.createObjectURL(file);
-                resultLink.value = finalLink;
-
-                // Save to history list
-                saveHistory({
-                    id: Date.now(),
-                    filename: file.name,
-                    key: uniqueKey,
-                    url: finalLink,
-                    date: new Date().toLocaleString()
-                });
-
-            } catch (err) {
-                console.error("Upload error details:", err);
-                alert(`Upload failed: ${err.message}\nEnsure CORS settings allow 'PUT' on Cloudflare R2.`);
-                resetUploader();
-            }
+                    // Save to history list
+                    saveHistory({
+                        id: Date.now(),
+                        filename: file.name,
+                        key: uniqueKey,
+                        url: finalLink,
+                        date: new Date().toLocaleString()
+                    });
+                }
+            });
         }
 
-        window.resetUploader = function() {
+        function resetUploader() {
             fileInput.value = '';
             uploadSuccess.classList.add('hidden');
             uploadLoading.classList.add('hidden');
             uploadBox.classList.remove('hidden');
-        };
+        }
 
         // Local Storage History helper
         function saveHistory(item) {
@@ -399,7 +399,7 @@
             localStorage.setItem('r2_upload_history', JSON.stringify(list));
         }
 
-        window.renderHistory = function() {
+        function renderHistory() {
             const historyContainer = document.getElementById('history-container');
             const historyEmpty = document.getElementById('history-empty');
             const list = JSON.parse(localStorage.getItem('r2_upload_history') || '[]');
@@ -435,23 +435,23 @@
                 `;
                 historyContainer.appendChild(card);
             });
-        };
+        }
 
-        window.deleteFromHistory = function(id) {
+        function deleteFromHistory(id) {
             let list = JSON.parse(localStorage.getItem('r2_upload_history') || '[]');
             list = list.filter(item => item.id !== id);
             localStorage.setItem('r2_upload_history', JSON.stringify(list));
             renderHistory();
-        };
+        }
 
-        window.clearHistory = function() {
+        function clearHistory() {
             if (confirm("Clear upload history from your browser? (Files in R2 will not be deleted)")) {
                 localStorage.removeItem('r2_upload_history');
                 renderHistory();
             }
-        };
+        }
 
-        window.copyToClipboard = function(elementId) {
+        function copyToClipboard(elementId) {
             const copyText = document.getElementById(elementId);
             copyText.select();
             copyText.setSelectionRange(0, 99999);
@@ -466,9 +466,9 @@
                 btn.innerHTML = origHTML;
                 btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap";
             }, 2000);
-        };
+        }
 
-        window.copyDirect = function(url, btn) {
+        function copyDirect(url, btn) {
             navigator.clipboard.writeText(url);
             const origHTML = btn.innerHTML;
             btn.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
@@ -477,7 +477,7 @@
                 btn.innerHTML = origHTML;
                 btn.className = "flex-grow bg-slate-950 hover:bg-slate-800 text-xs font-semibold py-2 rounded-lg border border-slate-800 text-indigo-400 flex items-center justify-center gap-1.5 transition-colors";
             }, 2000);
-        };
+        }
 
         // Initialize status setup on startup
         checkStatus();
