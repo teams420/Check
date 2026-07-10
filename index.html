@@ -15,14 +15,23 @@
     <!-- AWS SDK v2 -->
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1600.0.min.js"></script>
     
-    <!-- Glitch Prevention Script (Executes instantly before rendering) -->
+    <!-- Glitch & Flash Prevention Script (Executes instantly before rendering) -->
     <script>
         (function() {
+            // Theme check
             const savedTheme = localStorage.getItem('theme_preference');
             if (savedTheme === 'light') {
                 document.documentElement.classList.add('light-theme');
             } else {
                 document.documentElement.classList.remove('light-theme');
+            }
+
+            // Connection credentials check to prevent offline warning flash on refresh
+            const creds = localStorage.getItem('r2_settings');
+            if (creds) {
+                document.documentElement.classList.add('has-creds');
+            } else {
+                document.documentElement.classList.add('no-creds');
             }
         })();
     </script>
@@ -82,6 +91,23 @@
             transition: background-color 0.2s ease, color 0.2s ease;
         }
 
+        /* Symmetrical credentials-based state rendering without any flashes */
+        html.has-creds #settings-warning {
+            display: none !important;
+        }
+        html.has-creds #upload-box {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        
+        html.no-creds #settings-warning {
+            display: flex !important;
+        }
+        html.no-creds #upload-box {
+            opacity: 0.45 !important;
+            pointer-events: none !important;
+        }
+
         /* Custom premium scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-main); }
@@ -99,7 +125,7 @@
 </head>
 <body class="bg-[var(--bg-main)] text-[var(--text-muted)] font-sans min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased overflow-x-hidden">
 
-    <!-- Premium Glowing Background Elements (Conned to avoid page scroll space) -->
+    <!-- Premium Glowing Background Elements -->
     <div id="glow-blob-1" class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[130px] pointer-events-none transition-opacity duration-300 z-0" style="opacity: var(--blob-opacity);"></div>
     <div id="glow-blob-2" class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-violet-600/10 blur-[130px] pointer-events-none transition-opacity duration-300 z-0" style="opacity: var(--blob-opacity);"></div>
 
@@ -158,7 +184,7 @@
             </div>
 
             <!-- Upload Area -->
-            <div id="upload-box" class="opacity-45 pointer-events-none transition-all duration-300">
+            <div id="upload-box" class="transition-all duration-300">
                 <div id="dropzone" class="border-2 border-dashed border-[var(--border-dashed)] hover:border-brand-500 bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] rounded-3xl p-8 md:p-16 transition-all duration-300 text-center cursor-pointer group flex flex-col items-center justify-center neon-glow">
                     <input type="file" id="file-input" class="hidden" accept="image/*">
                     <div class="bg-[var(--bg-card)] text-brand-500 w-16 h-16 rounded-2xl border border-[var(--border-color)] flex items-center justify-center mb-6 group-hover:scale-105 group-hover:bg-gradient-to-tr group-hover:from-brand-600 group-hover:to-indigo-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-brand-500/25 transition-all duration-500">
@@ -278,7 +304,7 @@
 
     </main>
 
-    <!-- Footer (Refined to be completely flat with no grey overlay or weird shadow in light theme) -->
+    <!-- Footer -->
     <footer class="border-t border-[var(--border-color)] bg-transparent py-5 text-center text-[10px] text-slate-500 tracking-wider uppercase relative z-10 w-full mt-auto">
         <p>&copy; 2026 Enterprise S3 Client Panel. Isolated & Encrypted inside sandbox environment.</p>
     </footer>
@@ -395,14 +421,15 @@
             return data ? JSON.parse(data) : null;
         }
 
+        // Dynamic State Engine (Ensures no jump-scares or flashes)
         function checkStatus() {
             const creds = getCredentials();
             if (creds) {
+                document.documentElement.classList.remove('no-creds');
+                document.documentElement.classList.add('has-creds');
+
                 connectionStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected: ${creds.bucketName}`;
                 connectionStatus.className = "flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-500 shadow-sm shadow-emerald-500/5";
-
-                settingsWarning.classList.add('hidden');
-                uploadBox.classList.remove('opacity-45', 'pointer-events-none');
                 
                 // Populate fields in settings tab
                 r2AccountId.value = creds.accountId || '';
@@ -411,11 +438,11 @@
                 r2BucketName.value = creds.bucketName || '';
                 r2PublicUrl.value = creds.publicUrl || '';
             } else {
+                document.documentElement.classList.remove('has-creds');
+                document.documentElement.classList.add('no-creds');
+
                 connectionStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Offline Mode`;
                 connectionStatus.className = "flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 shadow-sm shadow-red-500/5";
-
-                settingsWarning.classList.remove('hidden');
-                uploadBox.classList.add('opacity-45', 'pointer-events-none');
             }
         }
 
@@ -430,6 +457,8 @@
                 publicUrl: r2PublicUrl.value.trim().replace(/\/$/, '')
             };
             localStorage.setItem('r2_settings', JSON.stringify(settings));
+            document.documentElement.classList.remove('no-creds');
+            document.documentElement.classList.add('has-creds');
             showToast("Settings saved successfully!");
             checkStatus();
             switchTab('upload');
@@ -439,6 +468,8 @@
         function clearSettings() {
             if (confirm("Permanently wipe gateway API tokens from this client container?")) {
                 localStorage.removeItem('r2_settings');
+                document.documentElement.classList.remove('has-creds');
+                document.documentElement.classList.add('no-creds');
                 r2AccountId.value = '';
                 r2AccessKey.value = '';
                 r2SecretKey.value = '';
